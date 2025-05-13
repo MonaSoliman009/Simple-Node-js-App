@@ -1,26 +1,30 @@
-name: Node.js CI
+name: Build-Test-Deploy Node App
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main  # Runs when pushing to main branch
 
 jobs:
-  build:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name:  Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name:  Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: '22.1.0'
 
-      - name: Install dependencies
+      - name:  Install dependencies
         run: npm install
 
-      - name: Run tests
-        run: npm test
+      - name:  Run tests
+        run: npx jest
+
+      - name:  Deploy to Render
+        run: curl "$RENDER_DEPLOY_HOOK_URL"
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
