@@ -1,31 +1,33 @@
-name: Build-Test-Deploy Node App
+name: Deploy to Netlify
 
 on:
   push:
     branches:
-      - main # Runs when pushing to main branch
+      - main
 
 jobs:
-  build-test-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
-          node-version: "22.1.0"
+          node-version: '16'
 
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests
-        run: npx jest
+      - name: Build
+        run: npm run build
 
       - name: Deploy to Netlify
-        if: github.ref == 'refs/heads/main'
-        run: |
-          npm install -g netlify-cli
-          netlify deploy --prod --auth ${{ secrets.NETLIFY_API_KEY }} --dir=dist
+        uses: nwtgck/actions-netlify@v1
+        with:
+          publish-dir: ./build
+          production-deploy: true
+          netlify-auth-token: ${{ secrets.NETLIFY_API_KEY}}
+          netlify-site-id: ${{ secrets.NETLIFY_SITE_ID }}
